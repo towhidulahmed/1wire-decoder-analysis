@@ -65,25 +65,37 @@ The `docs/waveform_analysis/` directory contains figures used in the analysis:
 *Figure: Decoding signal according to the 1-Wire protocol. Long low pulse = 0, short low pulse = 1.*
 
 - `full_cycle.png`: Shows a full 1-Wire communication cycle — low pulse durations (13.66 µs = 0, 4.333 µs = 1) and full cycle time (18.75 µs).
-<img src="docs/waveform_analysis/full_cycle_decoding.png" alt="Full Cycle Timing" style="height: 50; width: 100;"/>
-<p><em>Figure: Full cycle duration is 18.75 µs. Long low pulse of 13.66 µs = 0, short low pulse of 4.333 µs = 1.</em></p>
+<div align="center">
+  <img src="docs/waveform_analysis/full_cycle_decoding.png" alt="Full Cycle Timing" height= "250" width= "400"/>
+  <p><em>Figure: Full cycle duration is 18.75 µs. Long low pulse of 13.66 µs = 0, short low pulse of 4.333 µs = 1.</em></p>
+</div>
 
 - `Key's_behaviour_reset_signal.png`: Shows how the key continuously sends reset pulses, indicating repeated attempts to initiate communication.
-![Reset Signal Behavior](docs/waveform_analysis/Key's_behaviour_reset_signal.png)  
-*Figure: The key continuously sends reset pulses during idle communication.*
+<div align="center">
+  <img src="docs/waveform_analysis/Key's_behaviour_reset_signal.png" alt="Reset Signal Behavior" width="900px" height= "150" />
+  <p><em>Figure: The key continuously sends reset pulses during idle communication.</em></p>
+</div>
+
 
 - `mapping_chuncks_A,P,Q.png`: Visual aid to label and map segments like A1, A2, P1, Q1–Q9 for better communication structure analysis.
-![Sequence Mapping](docs/waveform_analysis/mapping_chuncks_A,P,Q.png)  
-*Figure: Labeled chunks A1, P1–P2, Q1–Q21 for organized pattern analysis.*
+<div align="center">
+  <img src="docs/waveform_analysis/mapping_chuncks_A,P,Q.png" alt="Sequence Mapping" width="900px" height= "150"/>
+  <p><em>Figure: Labeled chunks A1, P1–P2, Q1–Q21 for organized pattern analysis.</em></p>
+</div>
+
 
 - `unclocking_time_analysis.png`: Illustrates the total time (~98.0365 µs) taken for a complete unlocking process.
-![Unlocking Time Analysis](docs/waveform_analysis/unclocking_time_analysis.png)  
-*Figure: Time taken to complete unlock communication measured as ~98.0365 µs.*
+<div align="center">
+  <img src="docs/waveform_analysis/unclocking_time_analysis.png" alt="Unlocking Time Analysis" width="900px" height= "150" />
+  <p><em>Figure: Time taken to complete unlock communication measured as ~98.0365 µs.</em></p>
+</div>
+
 
 - `vulnerability_found_in_comm.png`: Captures the System ID (`V1004261`) found in plaintext within communication — a major vulnerability.
-<img src="docs/waveform_analysis/vulnerability_found_in_comm.jpg" alt="System ID Vulnerability" width="450"/>
-<p><em>Figure: System ID "V1004261" found in plaintext — indicates a critical vulnerability.</em></p>
-
+<div align="center">
+  <img src="docs/waveform_analysis/vulnerability_found_in_comm.jpg" alt="System ID Vulnerability" width="450"/>
+  <p><em>Figure: System ID "V1004261" found in plaintext — indicates a critical vulnerability.</em></p>
+</div>
 
 ---
 
@@ -111,4 +123,5 @@ The `docs/waveform_analysis/` directory contains figures used in the analysis:
 - Encrypt the entire communication payload instead of just selected fields.
 - Avoid transmitting static identifiers (like system ID) in plaintext.
 - Introduce session-specific tokens and cryptographic handshakes to prevent replay and forwarding attacks.
+
 
