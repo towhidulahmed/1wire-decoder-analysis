@@ -65,7 +65,7 @@ The `docs/waveform_analysis/` directory contains figures used in the analysis:
 *Figure: Decoding signal according to the 1-Wire protocol. Long low pulse = 0, short low pulse = 1.*
 
 - `full_cycle.png`: Shows a full 1-Wire communication cycle — low pulse durations (13.66 µs = 0, 4.333 µs = 1) and full cycle time (18.75 µs).
-<img src="docs/waveform_analysis/full_cycle_decoding.png" alt="Full Cycle Timing" style="height: 50%; width: auto;"/>
+<img src="docs/waveform_analysis/full_cycle_decoding.png" alt="Full Cycle Timing" style="height: 50; width: 100;"/>
 <p><em>Figure: Full cycle duration is 18.75 µs. Long low pulse of 13.66 µs = 0, short low pulse of 4.333 µs = 1.</em></p>
 
 - `Key's_behaviour_reset_signal.png`: Shows how the key continuously sends reset pulses, indicating repeated attempts to initiate communication.
