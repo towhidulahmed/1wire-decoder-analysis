@@ -65,7 +65,7 @@ The `docs/waveform_analysis/` directory contains figures used in the analysis:
 *Figure: Decoding signal according to the 1-Wire protocol. Long low pulse = 0, short low pulse = 1.*
 
 - `full_cycle.png`: Shows a full 1-Wire communication cycle — low pulse durations (13.66 µs = 0, 4.333 µs = 1) and full cycle time (18.75 µs).
-![Full Cycle Timing](docs/waveform_analysis/full_cycle.png)  
+![Full Cycle Timing](docs/waveform_analysis/full_cycle_decoding.png)  
 *Figure: Full cycle duration is 18.75 µs. Long low pulse of 13.66 µs = 0, short low pulse of 4.333 µs = 1.*
 
 - `Key's_behaviour_reset_signal.png`: Shows how the key continuously sends reset pulses, indicating repeated attempts to initiate communication.
@@ -81,7 +81,7 @@ The `docs/waveform_analysis/` directory contains figures used in the analysis:
 *Figure: Time taken to complete unlock communication measured as ~98.0365 µs.*
 
 - `vulnerability_found_in_comm.png`: Captures the System ID (`V1004261`) found in plaintext within communication — a major vulnerability.
-![System ID Vulnerability](docs/waveform_analysis/vulnerability_found_in_comm.png)  
+![System ID Vulnerability](docs/waveform_analysis/vulnerability_found_in_comm.jpg)  
 *Figure: System ID "V1004261" found in plaintext — indicates a critical vulnerability.*
 
 ---
