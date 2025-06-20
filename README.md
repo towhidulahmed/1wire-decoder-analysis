@@ -1,10 +1,9 @@
 # Forwarding-Attack on a Mechatronic Locking System
 
-This repository contains the tools, scripts, and data used to analyze and decode communication from a mechatronic locking system based on the 1-Wire protocol. The work supports a Master's pre-thesis at the University of Rostock titled:
+This repository contains the tools, scripts, signal data, and figures used to analyze and decode communication between a key and a mechatronic lock using the 1-Wire protocol.
 
-**"Forwarding-Attack on a Mechatronic Locking System"**  
-Faculty of Computer Science and Electrical Engineering  
-Work of: *Md Towhidul Ahmed* 
+**Author**: Md Towhidul Ahmed  
+
 ---
 
 ## Objectives
@@ -18,35 +17,77 @@ Work of: *Md Towhidul Ahmed*
 
 ## What is a Forwarding Attack?
 
-> A forwarding attack occurs when an adversary intercepts and relays (or alters) communication between two devices without their knowledge, typically exploiting weak communication protocols.
+A forwarding attack is a security breach where an adversary intercepts and relays or modifies communication between two devices without their knowledge. These attacks are effective against weak or partially protected communication protocols.
 
 ---
 
 ## Test Environment
 
-- **Lock System**: ASSA ABLOY VERSO® CLIQ (Konrad Zuse Haus, Universität Rostock)
-- **Key**: Embedded display, contact pins, system ID (`V1004261`)
-- **Protocol**: 1-Wire (Master: Key, Slave: Lock)
+- **Lock System**: ASSA ABLOY VERSO® CLIQ
+- **Key**: System ID `V1004261`, contact pins, embedded display
+- **Protocol**: 1-Wire (Key acts as Master, Lock as Slave)
+- **Test Setup**: Communication captured between the key and the lock during real unlocking attempts using a logic analyzer
 
 ---
 
 ## Tools Used
 
-- PicoScope (Signal voltage testing)
-- Logic Analyzer (Communication capture and decoding)
-- Raspberry Pi (GPIO testing with 1-Wire module)
-- Breadboard, jumper wires
+- PicoScope for signal voltage testing
+- Logic Analyzer for capturing communication signals
+- Raspberry Pi for GPIO testing with 1-Wire support
+- Breadboard and jumper wires
+- Physical test environment using mechanical key interface
 
 ---
 
-## Communication Analysis Highlights
+## Data
 
-- **Signal decoding**: Binary decoding via pulse width (Write 1 ≈ 4.33µs, Write 0 ≈ 13.67µs)
-- **System ID Exposed**: ASCII `V1004261` observed in plaintext
-- **Key ID, Lock ID Detection**: Unique bytes in P1, P2, and P3 sequences
-- **Sequence Similarity**: ~70–75% similarity even across time/key/lock changes
-- **Dynamic Elements**: Sequences like `E0` and parts of `P5/P6` show high entropy (likely encryption or time-based tokens)
-- **Static Elements**: Sequences `A0–A3`, `P4`, and `Q1–Q9` were constant
+The `data/sample_csvs/` folder contains CSV files with captured 1-Wire communication between key and lock.  
+Each file contains two columns:
 
+- Column 1: Timestamp (in seconds or milliseconds)
+- Column 2: Digital signal level (0 or 1)
 
+Example files include unlocking attempts with different keys, locks, and timestamps to analyze repeatability and time-related changes.
+
+---
+
+## Figures and Analysis
+
+The `docs/waveform_analysis/` directory contains figures used in the analysis:
+
+- `connection_diagram.png`: Shows how the logic analyzer is connected between the key and the lock to intercept the communication.
+- `8bit_decoding.png`: Demonstrates decoding logic for 1-Wire protocol — long low pulse indicates binary 0, short low pulse indicates binary 1.
+- `full_cycle.png`: Shows a full 1-Wire communication cycle — low pulse durations (13.66 µs = 0, 4.333 µs = 1) and full cycle time (18.75 µs).
+- `Key's_behaviour_reset_signal.png`: Shows how the key continuously sends reset pulses, indicating repeated attempts to initiate communication.
+- `mapping_chuncks_A,P,Q.png`: Visual aid to label and map segments like A1, A2, P1, Q1–Q9 for better communication structure analysis.
+- `unclocking_time_analysis.png`: Illustrates the total time (~98.0365 µs) taken for a complete unlocking process.
+- `vulnerability_found_in_comm.png`: Captures the System ID (`V1004261`) found in plaintext within communication — a major vulnerability.
+
+---
+
+## Communication Analysis Summary
+
+- The key initiates communication via reset pulses.
+- Binary values are decoded from pulse durations.
+- Repetitive structures were found in sequences like A1–A3 and Q1–Q9.
+- Key ID and Lock ID segments (e.g., P1, P2, P3) reveal static and dynamic parts.
+- Time-dependent fields and changing last-byte values suggest the use of nonces or checksums.
+- In some cases, over 70% of the data was identical across different unlocking events, indicating high predictability.
+
+---
+
+## Vulnerability Summary
+
+- **Exposed System ID**: Plaintext string `V1004261` found within communication frames.
+- **Predictable Structure**: Repeated sequences make replay or predictive attacks feasible.
+- **Partial Encryption**: Only parts of the sequence appear to be dynamic or hashed.
+
+---
+
+## Recommendations
+
+- Encrypt the entire communication payload instead of just selected fields.
+- Avoid transmitting static identifiers (like system ID) in plaintext.
+- Introduce session-specific tokens and cryptographic handshakes to prevent replay and forwarding attacks.
 
