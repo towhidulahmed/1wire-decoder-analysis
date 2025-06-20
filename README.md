@@ -81,8 +81,9 @@ The `docs/waveform_analysis/` directory contains figures used in the analysis:
 *Figure: Time taken to complete unlock communication measured as ~98.0365 µs.*
 
 - `vulnerability_found_in_comm.png`: Captures the System ID (`V1004261`) found in plaintext within communication — a major vulnerability.
-![System ID Vulnerability](docs/waveform_analysis/vulnerability_found_in_comm.jpg)  
-*Figure: System ID "V1004261" found in plaintext — indicates a critical vulnerability.*
+<img src="docs/waveform_analysis/vulnerability_found_in_comm.png" alt="System ID Vulnerability" width="450"/>
+<p><em>Figure: System ID "V1004261" found in plaintext — indicates a critical vulnerability.</em></p>
+
 
 ---
 
