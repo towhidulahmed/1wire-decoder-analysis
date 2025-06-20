@@ -57,7 +57,7 @@ Example files include unlocking attempts with different keys, locks, and timesta
 The `docs/waveform_analysis/` directory contains figures used in the analysis:
 
 - `connection_diagram.png`: Shows how the logic analyzer is connected between the key and the lock to intercept the communication.
-![Logic Analyzer Connection](docs/waveform_analysis/connection_diagram.png)  
+![Logic Analyzer Connection](docs/diagram/connection_diagram.png)  
 *Figure: How to connect the logic analyzer between the lock and key to capture communication signals.*
 
 - `8bit_decoding.png`: Demonstrates decoding logic for 1-Wire protocol — long low pulse indicates binary 0, short low pulse indicates binary 1.
