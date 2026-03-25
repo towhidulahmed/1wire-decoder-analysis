@@ -1,127 +1,140 @@
 # Forwarding-Attack on a Mechatronic Locking System
 
-This repository contains the tools, scripts, signal data, and figures used to analyze and decode communication between a key and a mechatronic lock using the 1-Wire protocol.
+**Author**: Md Towhidul Ahmed
 
-**Author**: Md Towhidul Ahmed  
-
----
-
-## Objectives
-
-- Demonstrate the feasibility of forwarding attacks on a 1-Wire-based locking system.
-- Analyze communication between the key and the lock to identify security flaws.
-- Evaluate existing protective mechanisms.
-- Provide risk assessments and suggest cryptographic countermeasures.
+This project investigates the security of a mechatronic locking system that relies on the 1-Wire protocol for key-lock communication. The main goal was to find out whether a forwarding attack is practically feasible against this kind of system. In such an attack, an adversary intercepts and relays the signal between key and lock without either device noticing. All the scripts, captured signal data, and analysis figures used during the research are collected here.
 
 ---
 
-## What is a Forwarding Attack?
+## Background and Motivation
 
-A forwarding attack is a security breach where an adversary intercepts and relays or modifies communication between two devices without their knowledge. These attacks are effective against weak or partially protected communication protocols.
+Mechatronic locks combine mechanical and electronic elements, and many of them depend on short-range wired protocols like 1-Wire to authenticate a key. In theory, this should be secure enough for physical access control. But during initial testing, it became clear that the protocol implementation on the lock under study left room for exploitation.
 
----
+A forwarding attack (sometimes called a relay attack) works by placing an adversary in the communication path between two legitimate devices. The attacker does not need to understand the content of the messages. Simply forwarding them at the right time can be enough to trick the system. This is especially dangerous when the protocol lacks proper session-based authentication or encryption.
 
-## Test Environment
-
-- **Lock System**: ASSA ABLOY VERSO® CLIQ
-- **Key**: System ID `V1004261`, contact pins, embedded display
-- **Protocol**: 1-Wire (Key acts as Master, Lock as Slave)
-- **Test Setup**: Communication captured between the key and the lock during real unlocking attempts using a logic analyzer
-
----
-
-## Tools Used
-
-- PicoScope for signal voltage testing
-- Logic Analyzer for capturing communication signals
-- Raspberry Pi for GPIO testing with 1-Wire support
-- Breadboard and jumper wires
-- Physical test environment using mechanical key interface
+The research set out to:
+- Capture and decode real communication between a key and lock
+- Identify which parts of the data are static vs. dynamic across sessions
+- Assess how much of the protocol is protected (or not)
+- Outline practical countermeasures
 
 ---
 
-## Data
+## Test Setup
 
-The `data/sample_csvs/` folder contains CSV files with captured 1-Wire communication between key and lock.  
-Each file contains two columns:
+The lock used for this study is an **ASSA ABLOY VERSO® CLIQ** system. The key carries System ID `V1004261`, has contact pins and a small embedded display. Communication follows the 1-Wire protocol, where the key acts as master and the lock as slave.
 
-- Column 1: Timestamp (in seconds or milliseconds)
-- Column 2: Digital signal level (0 or 1)
+To capture the signals, a logic analyzer was connected in-line between the key and lock contacts during real unlocking attempts. A PicoScope was also used early on to characterize voltage levels and timing. Some additional GPIO-level tests were run on a Raspberry Pi to better understand 1-Wire behaviour outside the lock context.
 
-Example files include unlocking attempts with different keys, locks, and timestamps to analyze repeatability and time-related changes.
+**Hardware used:**
+- PicoScope (voltage and timing characterization)
+- Logic Analyzer (signal capture during unlock events)
+- Raspberry Pi (GPIO-based 1-Wire experimentation)
+- Breadboard, jumper wires, and a mechanical key interface adapter
 
 ---
 
-## Figures and Analysis
+## Captured Data
 
-The `docs/waveform_analysis/` directory contains figures used in the analysis:
+Raw signal captures are stored in `data/sample_csvs/`. Each CSV has two columns: a timestamp and a digital level (0 or 1). Multiple unlock sessions were recorded using different keys, locks, and at different times, so that repeatability and time-dependent variations could be studied.
 
-- `connection_diagram.png`: Shows how the logic analyzer is connected between the key and the lock to intercept the communication.
-![Logic Analyzer Connection](docs/diagram/connection_diagram.png)  
-*Figure: How to connect the logic analyzer between the lock and key to capture communication signals.*
+---
 
-- `8bit_decoding.png`: Demonstrates decoding logic for 1-Wire protocol — long low pulse indicates binary 0, short low pulse indicates binary 1.
-![8-bit Decoding](docs/waveform_analysis/8bit_decoding.png)  
-*Figure: Decoding signal according to the 1-Wire protocol. Long low pulse = 0, short low pulse = 1.*
+## Signal Analysis and Figures
 
-- `full_cycle.png`: Shows a full 1-Wire communication cycle — low pulse durations (13.66 µs = 0, 4.333 µs = 1) and full cycle time (18.75 µs).
+All figures referenced below are in `docs/waveform_analysis/` (connection diagram is in `docs/diagram/`).
+
+### Connection Setup
+
+The logic analyzer sits between the key and lock contacts to passively tap the communication line.
+
 <div align="center">
-  <img src="docs/waveform_analysis/full_cycle_decoding.png" alt="Full Cycle Timing" height= "250" width= "400"/>
-  <p><em>Figure: Full cycle duration is 18.75 µs. Long low pulse of 13.66 µs = 0, short low pulse of 4.333 µs = 1.</em></p>
+  <img src="docs/diagram/connection_diagram.png" alt="Logic Analyzer Connection" width="700"/>
+  <p><em>How the logic analyzer was wired between the lock and key for signal capture.</em></p>
 </div>
 
-- `Key's_behaviour_reset_signal.png`: Shows how the key continuously sends reset pulses, indicating repeated attempts to initiate communication.
+### Bit-Level Decoding
+
+1-Wire encodes bits through pulse duration: a long low pulse represents a binary 0, a short low pulse represents a 1. The figure below shows this in practice on captured data.
+
 <div align="center">
-  <img src="docs/waveform_analysis/Key's_behaviour_reset_signal.png" alt="Reset Signal Behavior" width="900px" height= "150" />
-  <p><em>Figure: The key continuously sends reset pulses during idle communication.</em></p>
+  <img src="docs/waveform_analysis/8bit_decoding.png" alt="8-bit Decoding" width="700"/>
+  <p><em>Decoding individual bits from the 1-Wire signal. Long low = 0, short low = 1.</em></p>
 </div>
 
+### Full Cycle Timing
 
-- `mapping_chuncks_A,P,Q.png`: Visual aid to label and map segments like A1, A2, P1, Q1–Q9 for better communication structure analysis.
+A single bit cycle takes about 18.75 µs. Within that, a low pulse of ~13.66 µs encodes a 0, while ~4.333 µs encodes a 1. These timings were consistent across all captures.
+
 <div align="center">
-  <img src="docs/waveform_analysis/mapping_chuncks_A,P,Q.png" alt="Sequence Mapping" width="900px" height= "150"/>
-  <p><em>Figure: Labeled chunks A1, P1–P2, Q1–Q21 for organized pattern analysis.</em></p>
+  <img src="docs/waveform_analysis/full_cycle_decoding.png" alt="Full Cycle Timing" width="700"/>
+  <p><em>Full cycle duration measured at 18.75 µs. Low pulse of 13.66 µs = 0, 4.333 µs = 1.</em></p>
 </div>
 
+### Key Idle Behaviour
 
-- `unclocking_time_analysis.png`: Illustrates the total time (~98.0365 µs) taken for a complete unlocking process.
+When no lock is present (or during idle), the key continuously sends reset pulses, essentially polling for a slave device. This is standard 1-Wire behaviour but worth noting for timing analysis.
+
 <div align="center">
-  <img src="docs/waveform_analysis/unclocking_time_analysis.png" alt="Unlocking Time Analysis" width="900px" height= "150" />
-  <p><em>Figure: Time taken to complete unlock communication measured as ~98.0365 µs.</em></p>
+  <img src="docs/waveform_analysis/Key's_behaviour_reset_signal.png" alt="Reset Signal Behavior" width="100%"/>
+  <p><em>The key sends repeated reset pulses while waiting for a lock to respond.</em></p>
 </div>
 
+### Sequence Mapping
 
-- `vulnerability_found_in_comm.png`: Captures the System ID (`V1004261`) found in plaintext within communication — a major vulnerability.
+To make sense of the full communication, the data stream was segmented into labeled chunks: A1, A2 for initial exchanges, P1–P2 for identification-related fields, and Q1–Q21 for the main data payload. This labeling made it much easier to compare sessions side by side.
+
 <div align="center">
-  <img src="docs/waveform_analysis/vulnerability_found_in_comm.jpg" alt="System ID Vulnerability" width="450"/>
-  <p><em>Figure: System ID "V1004261" found in plaintext — indicates a critical vulnerability.</em></p>
+  <img src="docs/waveform_analysis/mapping_chuncks_A,P,Q.png" alt="Sequence Mapping" width="100%"/>
+  <p><em>Labeled chunks (A, P, Q segments) used for structured comparison across sessions.</em></p>
+</div>
+
+### Unlock Duration
+
+The entire unlock communication, from the first reset pulse to the final acknowledgement, takes roughly 98 µs. This is fast enough that an attacker with decent hardware could relay it in real time.
+
+<div align="center">
+  <img src="docs/waveform_analysis/unclocking_time_analysis.png" alt="Unlocking Time Analysis" width="100%"/>
+  <p><em>Total unlock communication duration: approximately 98.04 µs.</em></p>
+</div>
+
+### Plaintext System ID
+
+One of the more concerning findings: the System ID (`V1004261`) appears in plaintext within the captured data. The raw hex bytes `56 31 30 30 34 32 36 31` decode directly to ASCII characters, revealing the full system identifier. Anyone with a logic analyzer and physical access to the key contacts can read it.
+
+<div align="center">
+  <img src="docs/waveform_analysis/vulnerability_found_in_comm.jpg" alt="System ID Vulnerability" width="700"/>
+  <p><em>System ID "V1004261" transmitted in the clear, with no encryption or obfuscation.</em></p>
 </div>
 
 ---
 
-## Communication Analysis Summary
+## What the Analysis Showed
 
-- The key initiates communication via reset pulses.
-- Binary values are decoded from pulse durations.
-- Repetitive structures were found in sequences like A1–A3 and Q1–Q9.
-- Key ID and Lock ID segments (e.g., P1, P2, P3) reveal static and dynamic parts.
-- Time-dependent fields and changing last-byte values suggest the use of nonces or checksums.
-- In some cases, over 70% of the data was identical across different unlocking events, indicating high predictability.
+After decoding and comparing multiple unlock sessions, a few things stood out:
 
----
+- The key always initiates with reset pulses, then the lock responds. This follows standard 1-Wire master/slave behaviour.
+- Segments A1–A3 and large portions of the Q-blocks were nearly identical across sessions. In some comparisons, over 70% of the payload was unchanged between different unlock events.
+- Certain fields (P1, P2, P3) appear to carry key and lock identifiers. Parts of these are static, while others change between sessions, possibly serving as nonces or checksums.
+- The last byte in several segments varied between sessions, which hints at some form of rolling value. However, this alone is not enough to prevent replay if the rest of the payload is predictable.
 
-## Vulnerability Summary
-
-- **Exposed System ID**: Plaintext string `V1004261` found within communication frames.
-- **Predictable Structure**: Repeated sequences make replay or predictive attacks feasible.
-- **Partial Encryption**: Only parts of the sequence appear to be dynamic or hashed.
+In short, the communication is highly structured and largely predictable. This makes it vulnerable to both replay and forwarding attacks.
 
 ---
 
-## Recommendations
+## Key Vulnerabilities
 
-- Encrypt the entire communication payload instead of just selected fields.
-- Avoid transmitting static identifiers (like system ID) in plaintext.
-- Introduce session-specific tokens and cryptographic handshakes to prevent replay and forwarding attacks.
+- **System ID in plaintext**: The string `V1004261` is readable directly from the wire, with no encryption or masking.
+- **High payload similarity**: Most of the data does not change between sessions, making replay straightforward.
+- **Incomplete protection**: Only a small fraction of the exchanged bytes appear to be dynamic or authenticated. The rest is static and predictable.
 
+---
+
+## Suggested Countermeasures
+
+Based on the findings, a few practical steps would significantly raise the bar for an attacker:
+
+- **Full payload encryption**: Rather than protecting only selected fields, the entire communication should be encrypted end-to-end.
+- **No plaintext identifiers**: Static values like the system ID should never be sent in the clear. They should be part of an encrypted or hashed exchange.
+- **Session-based authentication**: Each unlock attempt should involve a fresh cryptographic challenge-response (e.g., using a nonce and HMAC), making previously captured sessions useless for replay.
 
